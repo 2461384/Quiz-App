@@ -20,6 +20,7 @@ function Home({ setUserName }) {
       const hasAttempted = await response.json();
 
       if (hasAttempted) {
+        console.log('User has already attempted the quiz:', name);
         toast.error('❌ No retries allowed!\n\nYou have already attempted this quiz once.\nEach person can attempt the quiz only once.', {
           position: 'top-center',
           autoClose: 4000,
