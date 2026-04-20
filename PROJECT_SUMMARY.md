@@ -73,8 +73,6 @@ quiz_db/
 ├── questions              - Store quiz questions
 │   ├── id (PK)
 │   ├── question_text
-│   ├── category
-│   └── difficulty
 │
 ├── options                - Store answer options
 │   ├── id (PK)

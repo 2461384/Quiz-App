@@ -50,8 +50,8 @@ public class QuestionService {
     public QuestionDTO addQuestionFromDTO(QuestionDTO questionDTO) {
         Question question = new Question();
         question.setQuestionText(questionDTO.getQuestionText());
-        question.setCategory(questionDTO.getCategory());
-        question.setDifficulty(questionDTO.getDifficulty());
+        // question.setCategory(questionDTO.getCategory());
+        // question.setDifficulty(questionDTO.getDifficulty());
 
         List<Option> options = questionDTO.getOptions().stream()
                 .map(optDTO -> {
@@ -75,8 +75,8 @@ public class QuestionService {
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         question.setQuestionText(questionDTO.getQuestionText());
-        question.setCategory(questionDTO.getCategory());
-        question.setDifficulty(questionDTO.getDifficulty());
+        // question.setCategory(questionDTO.getCategory());
+        // question.setDifficulty(questionDTO.getDifficulty());
 
         List<Option> options = questionDTO.getOptions().stream()
                 .map(optDTO -> {
@@ -126,8 +126,8 @@ public class QuestionService {
         QuestionDTO dto = new QuestionDTO();
         dto.setId(question.getId());
         dto.setQuestionText(question.getQuestionText());
-        dto.setCategory(question.getCategory());
-        dto.setDifficulty(question.getDifficulty());
+        // dto.setCategory(question.getCategory());
+        // dto.setDifficulty(question.getDifficulty());
 
         List<OptionDTO> options = question.getOptions().stream()
                 .map(option -> new OptionDTO(option.getId(), option.getOptionText(), option.isCorrectAnswer()))

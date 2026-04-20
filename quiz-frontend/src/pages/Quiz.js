@@ -16,7 +16,7 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
   const [quizComplete, setQuizComplete] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Fetch once at quiz start
+  // Fetch once at quiz start
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -35,7 +35,7 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
         // Shuffle AFTER deduplication
         const shuffled = [...uniqueQuestions].sort(() => Math.random() - 0.5);
 
-        // ✅ Take only the first 10 for this quiz session
+        // Take only the first 10 for this quiz session
         const selected = shuffled.slice(0, 10);
 
         setQuestions(selected);

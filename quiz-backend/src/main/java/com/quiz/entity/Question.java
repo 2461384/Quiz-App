@@ -14,11 +14,11 @@ public class Question {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String questionText;
 
-    @Column(nullable = false)
-    private String category;
+    // @Column(nullable = false)
+    // private String category;
 
-    @Column(nullable = false)
-    private String difficulty;
+    // @Column(nullable = false)
+    // private String difficulty;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Option> options;
@@ -29,8 +29,8 @@ public class Question {
     public Question(Long id, String questionText, String category, String difficulty, List<Option> options) {
         this.id = id;
         this.questionText = questionText;
-        this.category = category;
-        this.difficulty = difficulty;
+        // this.category = category;
+        // this.difficulty = difficulty;
         this.options = options;
     }
 
@@ -50,21 +50,21 @@ public class Question {
         this.questionText = questionText;
     }
 
-    public String getCategory() {
-        return category;
-    }
+    // public String getCategory() {
+    //     return category;
+    // }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+    // public void setCategory(String category) {
+    //     this.category = category;
+    // }
 
-    public String getDifficulty() {
-        return difficulty;
-    }
+    // public String getDifficulty() {
+    //     return difficulty;
+    // }
 
-    public void setDifficulty(String difficulty) {
-        this.difficulty = difficulty;
-    }
+    // public void setDifficulty(String difficulty) {
+    //     this.difficulty = difficulty;
+    // }
 
     public List<Option> getOptions() {
         return options;
