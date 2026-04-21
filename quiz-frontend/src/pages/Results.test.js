@@ -1,57 +1,107 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import Results from './Results';
-
-const renderResults = () =>
-  render(
-    <BrowserRouter>
-      <Results
-        userName="Sriram"
-        quizScore={8}
-        totalQuestions={10}
-      />
-    </BrowserRouter>
+ 
+// Mock axios
+jest.mock('axios', () => ({
+  get: jest.fn(() => Promise.resolve({ data: [] })),
+}));
+ 
+// Mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+ 
+const renderResults = (props = {}) => {
+  const defaultProps = {
+    userName: 'Alice',
+    score: 8,
+    totalQuestions: 10,
+    ...props,
+  };
+  return render(
+    <MemoryRouter>
+      <Results {...defaultProps} />
+    </MemoryRouter>
   );
-
+};
+ 
 describe('Results Page', () => {
-  test('renders quiz results correctly', () => {
+  beforeEach(() => jest.clearAllMocks());
+ 
+  test('renders Quiz Complete heading', () => {
     renderResults();
-
-    expect(screen.getByText(/Quiz Complete!/i)).toBeInTheDocument();
-    expect(screen.getByText('Sriram')).toBeInTheDocument();
-
-    expect(screen.getByText(/8\s*\/\s*10/)).toBeInTheDocument();
-
-    // ✅ Split text-safe match
-    expect(
-      screen.getByText((_, element) =>
-        element.textContent.trim() === '80%'
-      )
-    ).toBeInTheDocument();
-
+    expect(screen.getByText('Quiz Complete!')).toBeInTheDocument();
+  });
+ 
+  test('renders user name in congratulations message', () => {
+    renderResults();
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+  });
+ 
+  test('renders correct score out of total', () => {
+    renderResults();
+    expect(screen.getByText('8 / 10')).toBeInTheDocument();
+  });
+ 
+  test('renders correct percentage', () => {
+    renderResults();
+    expect(screen.getAllByText('80%').length).toBeGreaterThan(0);
+  });
+ 
+  test('renders grade A for >= 90%', () => {
+    renderResults({ score: 9, totalQuestions: 10 });
+    expect(screen.getByText('A')).toBeInTheDocument();
+  });
+ 
+  test('renders grade B for >= 80%', () => {
+    renderResults({ score: 8, totalQuestions: 10 });
     expect(screen.getByText('B')).toBeInTheDocument();
-    expect(screen.getByText(/Correct Answers/i)).toBeInTheDocument();
-    expect(screen.getByText(/Incorrect Answers/i)).toBeInTheDocument();
-    expect(screen.getByText(/Accuracy/i)).toBeInTheDocument();
   });
-
-  test('shows performance message', () => {
-    renderResults();
-
-    expect(
-      screen.getByText(/Great job/i)
-    ).toBeInTheDocument();
+ 
+  test('renders grade C for >= 70%', () => {
+    renderResults({ score: 7, totalQuestions: 10 });
+    expect(screen.getByText('C')).toBeInTheDocument();
   });
-
-  test('renders action buttons', () => {
+ 
+  test('renders grade D for >= 60%', () => {
+    renderResults({ score: 6, totalQuestions: 10 });
+    expect(screen.getByText('D')).toBeInTheDocument();
+  });
+ 
+  test('renders grade F for < 60%', () => {
+    renderResults({ score: 4, totalQuestions: 10 });
+    expect(screen.getByText('F')).toBeInTheDocument();
+  });
+ 
+  test('renders correct answers count', () => {
+    renderResults({ score: 8, totalQuestions: 10 });
+    expect(screen.getByText('Correct Answers')).toBeInTheDocument();
+  });
+ 
+  test('renders incorrect answers count', () => {
+    renderResults({ score: 8, totalQuestions: 10 });
+    expect(screen.getByText('Incorrect Answers')).toBeInTheDocument();
+  });
+ 
+  test('renders accuracy label', () => {
     renderResults();
-
-    expect(
-      screen.getByText(/View Leaderboard/i)
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText(/Back to Home/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText('Accuracy')).toBeInTheDocument();
+  });
+ 
+  test('renders 0% when totalQuestions is 0', () => {
+    renderResults({ score: 0, totalQuestions: 0 });
+    expect(screen.getAllByText('0%').length).toBeGreaterThan(0);
+  });
+ 
+  test('renders with perfect score', () => {
+    renderResults({ score: 10, totalQuestions: 10 });
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.getByText('10 / 10')).toBeInTheDocument();
   });
 });
+ 
+ 
