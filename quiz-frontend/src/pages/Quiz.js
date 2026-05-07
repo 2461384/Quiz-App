@@ -5,8 +5,8 @@ import QuestionCard from '../components/QuestionCard';
 import Timer from '../components/Timer';
 import ProgressBar from '../components/ProgressBar';
 import '../styles/Quiz.css';
-
-function Quiz({ userName, setQuizScore, setTotalQuestions }) {
+ 
+function Quiz({ userName, setQuizScore, setTotalQuestions, setIncorrectAnswers, category, difficulty }) {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -14,31 +14,20 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(60);
   const [quizComplete, setQuizComplete] = useState(false);
+  const [timeExpiredForQuestions, setTimeExpiredForQuestions] = useState({}); // Track which questions timed out
   const navigate = useNavigate();
-
-  // ✅ Fetch once at quiz start
+ 
+  // Fetch once at quiz start
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/questions', {
-          params: { limit: 50 } // request a large pool
-        });
+        const params = { limit: 10 };
+        if (category && category !== 'all') params.category = category;
+        if (difficulty && difficulty !== 'all') params.difficulty = difficulty;
 
-        // Deduplicate by ID
-        const seen = new Set();
-        const uniqueQuestions = response.data.filter(q => {
-          if (seen.has(q.id)) return false;
-          seen.add(q.id);
-          return true;
-        });
+        const response = await axios.get('http://localhost:8080/api/questions/random', { params });
 
-        // Shuffle AFTER deduplication
-        const shuffled = [...uniqueQuestions].sort(() => Math.random() - 0.5);
-
-        // ✅ Take only the first 10 for this quiz session
-        const selected = shuffled.slice(0, 10);
-
-        setQuestions(selected);
+        setQuestions(response.data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -47,8 +36,8 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
     };
 
     fetchQuestions();
-  }, []);
-
+  }, [category, difficulty]);
+ 
   // Timer logic
   useEffect(() => {
     if (quizComplete) return;
@@ -56,6 +45,12 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
+          // Mark this question as timed out
+          setTimeExpiredForQuestions(prev => ({
+            ...prev,
+            [currentQuestionIndex]: true
+          }));
+          
           setCurrentQuestionIndex(idx => {
             const nextIdx = idx + 1;
             if (nextIdx >= questions.length) {
@@ -70,20 +65,18 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [quizComplete, currentQuestionIndex, questions.length]);
-
-  const handleAnswerSelect = (answerId) => {
-    const currentQuestion = questions[currentQuestionIndex];
-    setSelectedAnswers({
-      ...selectedAnswers,
+  }, [quizComplete, currentQuestionIndex, questions.length]);  const handleAnswerSelect = (answerId) => { // User selects an answer
+    const currentQuestion = questions[currentQuestionIndex]; // Get current question object
+    setSelectedAnswers({ // Update selected answers state
+      ...selectedAnswers, 
       [currentQuestionIndex]: answerId
     });
-
+ 
     if (answerId === currentQuestion.correctAnswerId) {
       setScore(prev => prev + 1);
     }
   };
-
+ 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -92,18 +85,34 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
       completeQuiz();
     }
   };
-
+ 
   const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
+    // Only allow going to previous question if current question didn't timeout
+    if (currentQuestionIndex > 0 && !timeExpiredForQuestions[currentQuestionIndex]) {
       setCurrentQuestionIndex(prev => prev - 1);
       setTimeLeft(60);
     }
   };
-
+ 
   const completeQuiz = async () => {
     setQuizComplete(true);
     setTotalQuestions(questions.length);
     setQuizScore(score);
+
+    const wrong = questions.reduce((acc, q, idx) => {
+      const selectedId = selectedAnswers[idx];
+      if (selectedId === q.correctAnswerId) return acc;
+      const selectedOption = q.options.find(o => o.id === selectedId);
+      const correctOption = q.options.find(o => o.id === q.correctAnswerId);
+      acc.push({
+        questionNumber: idx + 1,
+        questionText: q.questionText,
+        selectedAnswer: selectedOption ? selectedOption.optionText : (timeExpiredForQuestions[idx] ? '(time expired - no answer)' : '(not answered)'),
+        correctAnswer: correctOption ? correctOption.optionText : ''
+      });
+      return acc;
+    }, []);
+    setIncorrectAnswers(wrong);
 
     try {
       await axios.post('http://localhost:8080/api/scores', {
@@ -120,18 +129,18 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
       navigate('/results');
     }, 1000);
   };
-
+ 
   if (loading) {
     return <div className="quiz-container"><div className="loading">Loading questions...</div></div>;
   }
-
+ 
   if (questions.length === 0) {
     return <div className="quiz-container"><div className="loading">No questions available</div></div>;
   }
-
+ 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-
+ 
   return (
     <div className="quiz-container">
       <div className="quiz-header">
@@ -143,9 +152,9 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
           <Timer timeLeft={timeLeft} />
         </div>
       </div>
-
+ 
       <ProgressBar progress={progress} />
-
+ 
       <div className="quiz-content">
         <QuestionCard
           question={currentQuestion}
@@ -154,17 +163,18 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
           questionNumber={currentQuestionIndex + 1}
         />
       </div>
-
+ 
       <div className="quiz-footer">
-        <button 
+        <button
           className="btn btn-secondary"
           onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
+          disabled={currentQuestionIndex === 0 || timeExpiredForQuestions[currentQuestionIndex]}
+          title={timeExpiredForQuestions[currentQuestionIndex] ? 'Cannot go back - Time expired' : 'Go to previous question'}
         >
           ← Previous
         </button>
-
-        <button 
+ 
+        <button
           className="btn btn-primary"
           onClick={currentQuestionIndex === questions.length - 1 ? completeQuiz : handleNext}
         >
@@ -174,5 +184,20 @@ function Quiz({ userName, setQuizScore, setTotalQuestions }) {
     </div>
   );
 }
-
+ 
 export default Quiz;
+ 
+//  STATE VARIABLES:
+//     questions[]           → Array of 10 question objects from backend
+//     currentQuestionIndex  → Which question is showing (0 to 9)
+//     score                 → Running count of correct answers
+//     selectedAnswers{}     → Object mapping {questionIndex: selectedOptionId}
+//                             Example: {0: 45, 1: 23, 2: 67} means:
+//                               Question 0 → selected option with ID 45
+//                               Question 1 → selected option with ID 23
+//                               Question 2 → selected option with ID 67
+//     loading               → true while fetching questions
+//     timeLeft              → Countdown from 60 to 0 (seconds)
+//     quizComplete          → true when quiz is finished (stops timer)
+
+// --- FETCHING QUESTIONS (runs once on page load) ---

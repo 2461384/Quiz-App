@@ -235,3 +235,154 @@
     width: 100%;
   }
 }
+
+/* Dark Mode Styles for Results */
+body.dark-mode .results-container {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+}
+
+body.dark-mode .results-header {
+  color: #ffffff;
+}
+
+body.dark-mode .result-user {
+  color: #e0e0e0;
+}
+
+body.dark-mode .score-card {
+  background-color: #2d2d44;
+  color: #e0e0e0;
+}
+
+body.dark-mode .grade-badge {
+  background-color: #3d3d54;
+  border-color: #667eea;
+}
+
+body.dark-mode .score-display-large h2 {
+  color: #ffffff;
+}
+
+body.dark-mode .stat-label {
+  color: #999;
+}
+
+body.dark-mode .stat-value {
+  color: #e0e0e0;
+}
+
+body.dark-mode .performance-message {
+  background-color: #3d3d54;
+  color: #e0e0e0;
+}
+
+body.dark-mode .recent-scores {
+  background-color: #2d2d44;
+  color: #e0e0e0;
+}
+
+body.dark-mode .recent-scores h3 {
+  color: #ffffff;
+}
+
+body.dark-mode .score-row {
+  border-bottom-color: #404060;
+}
+
+body.dark-mode .score-row:hover {
+  background-color: #3d3d54;
+}
+
+/* Review Section (Learn From Your Mistakes) */
+.review-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.review-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 22px;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.review-item {
+  border-left: 4px solid #F44336;
+  background: #fafafa;
+  padding: 14px 16px;
+  border-radius: 6px;
+}
+
+.review-question {
+  margin: 0 0 10px;
+  color: #222;
+  line-height: 1.4;
+}
+
+.review-answer {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.review-answer.wrong {
+  color: #c0392b;
+}
+
+.review-answer.right {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.review-label {
+  display: inline-block;
+  min-width: 130px;
+  color: #555;
+  font-weight: 600;
+}
+
+body.dark-mode .review-section {
+  background-color: #2d2d44;
+}
+
+body.dark-mode .review-header h3 {
+  color: #ffffff;
+}
+
+body.dark-mode .review-item {
+  background: #1f1f33;
+}
+
+body.dark-mode .review-question {
+  color: #e0e0e0;
+}
+
+body.dark-mode .review-label {
+  color: #b0b0c0;
+}
+
+body.dark-mode .review-answer.wrong {
+  color: #ff7a6b;
+}
+
+body.dark-mode .review-answer.right {
+  color: #7ed492;
+}

@@ -299,7 +299,7 @@ quizappdemo2/
 ```
 User Browser (React)
         ↓
-    HTTP Request (Axios)
+HTTP Request (Axios)
         ↓
 Spring Boot REST Controller
         ↓

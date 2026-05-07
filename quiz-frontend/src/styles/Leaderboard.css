@@ -180,3 +180,63 @@
     width: 100%;
   }
 }
+
+/* Dark Mode Styles for Leaderboard */
+body.dark-mode .leaderboard-container {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+}
+
+body.dark-mode .leaderboard-header {
+  color: #ffffff;
+}
+
+body.dark-mode .leaderboard-header h1 {
+  color: #ffffff;
+}
+
+body.dark-mode .leaderboard-header p {
+  color: #e0e0e0;
+}
+
+body.dark-mode .leaderboard-table {
+  background-color: #2d2d44;
+}
+
+body.dark-mode .table-header {
+  background-color: #1a1a2e;
+  color: #ffffff;
+}
+
+body.dark-mode .table-row {
+  border-bottom-color: #404060;
+  color: #e0e0e0;
+}
+
+body.dark-mode .table-row:hover {
+  background-color: #3d3d54;
+}
+
+body.dark-mode .table-row .name {
+  color: #ffffff;
+}
+
+body.dark-mode .table-row .score {
+  color: #667eea;
+}
+
+body.dark-mode .table-row .date {
+  color: #999;
+}
+
+body.dark-mode .no-data {
+  color: #ffffff;
+}
+
+body.dark-mode .leaderboard-content .btn {
+  background-color: #667eea;
+  color: white;
+}
+
+body.dark-mode .leaderboard-content .btn:hover {
+  background-color: #7a8cff;
+}

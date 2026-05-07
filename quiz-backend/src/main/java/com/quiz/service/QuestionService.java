@@ -1,5 +1,4 @@
 package com.quiz.service;
-
 import com.quiz.dto.QuestionDTO;
 import com.quiz.dto.OptionDTO;
 import com.quiz.entity.Question;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 public class QuestionService {
 
@@ -20,10 +18,28 @@ public class QuestionService {
 
     // Get random unique questions
     public List<QuestionDTO> getRandomQuestions(int limit) {
-        List<Question> allQuestions = questionRepository.findAll();
-        Collections.shuffle(allQuestions);
+        return getRandomQuestions(limit, null, null);
+    }
 
-        List<Question> uniqueQuestions = allQuestions.stream()
+    // Get random unique questions, optionally filtered by category and/or difficulty
+    public List<QuestionDTO> getRandomQuestions(int limit, String category, String difficulty) {
+        boolean hasCategory = category != null && !category.isBlank() && !"all".equalsIgnoreCase(category);
+        boolean hasDifficulty = difficulty != null && !difficulty.isBlank() && !"all".equalsIgnoreCase(difficulty);
+
+        List<Question> pool;
+        if (hasCategory && hasDifficulty) {
+            pool = questionRepository.findByCategoryAndDifficulty(category, difficulty);
+        } else if (hasCategory) {
+            pool = questionRepository.findByCategory(category);
+        } else if (hasDifficulty) {
+            pool = questionRepository.findByDifficulty(difficulty);
+        } else {
+            pool = questionRepository.findAll();
+        }
+
+        Collections.shuffle(pool);
+
+        List<Question> uniqueQuestions = pool.stream()
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -31,6 +47,16 @@ public class QuestionService {
         List<Question> selected = uniqueQuestions.subList(0, size);
 
         return convertToDTO(selected);
+    }
+
+    // Get distinct categories present in the question bank
+    public List<String> getCategories() {
+        return questionRepository.findDistinctCategories();
+    }
+
+    // Get distinct difficulties present in the question bank
+    public List<String> getDifficulties() {
+        return questionRepository.findDistinctDifficulties();
     }
 
     // Get all questions
@@ -132,6 +158,9 @@ public class QuestionService {
         List<OptionDTO> options = question.getOptions().stream()
                 .map(option -> new OptionDTO(option.getId(), option.getOptionText(), option.isCorrectAnswer()))
                 .collect(Collectors.toList());
+
+        // Shuffle options so the correct answer isn't always in the same position
+        Collections.shuffle(options);
 
         dto.setOptions(options);
         dto.setCorrectAnswerId(question.getCorrectAnswerId());

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Results.css';
 
-function Results({ userName, score, totalQuestions }) {
+function Results({ userName, score, totalQuestions, incorrectAnswers = [] }) {
   const navigate = useNavigate();
   const [recentScores, setRecentScores] = useState([]);
 
@@ -28,6 +28,36 @@ function Results({ userName, score, totalQuestions }) {
     if (percentage >= 70) return 'C';
     if (percentage >= 60) return 'D';
     return 'F';
+  };
+
+  const handleDownloadReport = () => {
+    const lines = [
+      'Quiz Review Report',
+      '==================',
+      `Name: ${userName}`,
+      `Score: ${score} / ${totalQuestions} (${percentage}%)`,
+      `Date: ${new Date().toLocaleString()}`,
+      '',
+      `Incorrect Answers (${incorrectAnswers.length}):`,
+      ''
+    ];
+
+    incorrectAnswers.forEach((item) => {
+      lines.push(`Q${item.questionNumber}. ${item.questionText}`);
+      lines.push(`   Your answer:    ${item.selectedAnswer}`);
+      lines.push(`   Correct answer: ${item.correctAnswer}`);
+      lines.push('');
+    });
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `quiz-review-${userName || 'user'}-${Date.now()}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const getGradeColor = () => {
@@ -88,6 +118,35 @@ function Results({ userName, score, totalQuestions }) {
           {percentage >= 70 && percentage < 80 && <p className="average">✓ Good effort! Practice more!</p>}
           {percentage < 70 && <p className="poor">💪 Keep practicing to improve!</p>}
         </div>
+
+        {incorrectAnswers.length > 0 && (
+          <div className="review-section">
+            <div className="review-header">
+              <h3>Learn From Your Mistakes</h3>
+              <button
+                className="btn btn-primary"
+                onClick={handleDownloadReport}
+              >
+                Download Report
+              </button>
+            </div>
+            <div className="review-list">
+              {incorrectAnswers.map((item) => (
+                <div key={item.questionNumber} className="review-item">
+                  <p className="review-question">
+                    <strong>Q{item.questionNumber}.</strong> {item.questionText}
+                  </p>
+                  <p className="review-answer wrong">
+                    <span className="review-label">Your answer:</span> {item.selectedAnswer}
+                  </p>
+                  <p className="review-answer right">
+                    <span className="review-label">Correct answer:</span> {item.correctAnswer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {recentScores.length > 0 && (
           <div className="recent-scores">

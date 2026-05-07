@@ -25,6 +25,28 @@ public class QuestionController {
         return ResponseEntity.ok(questions);
     }
 
+    @Operation(summary = "Get random questions", description = "Fetch a limited number of random unique questions, optionally filtered by category and/or difficulty.")
+    @GetMapping("/random")
+    public ResponseEntity<List<QuestionDTO>> getRandomQuestions(
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String difficulty) {
+        List<QuestionDTO> questions = questionService.getRandomQuestions(limit, category, difficulty);
+        return ResponseEntity.ok(questions);
+    }
+
+    @Operation(summary = "Get available categories", description = "Fetch the distinct categories present in the question bank.")
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        return ResponseEntity.ok(questionService.getCategories());
+    }
+
+    @Operation(summary = "Get available difficulties", description = "Fetch the distinct difficulty levels present in the question bank.")
+    @GetMapping("/difficulties")
+    public ResponseEntity<List<String>> getDifficulties() {
+        return ResponseEntity.ok(questionService.getDifficulties());
+    }
+ 
     @Operation(summary = "Get question by ID", description = "Fetch a single question by its ID.")
     @GetMapping("/{id}")
     public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable Long id) {

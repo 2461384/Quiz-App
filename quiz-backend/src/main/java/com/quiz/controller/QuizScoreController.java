@@ -24,6 +24,7 @@ public class QuizScoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedScore);
     }
 
+
     @GetMapping("/user/{userName}")
     public ResponseEntity<List<QuizScoreDTO>> getScoresByUserName(@PathVariable String userName) {
         List<QuizScoreDTO> scores = quizScoreService.getScoresByUserName(userName);

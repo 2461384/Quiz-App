@@ -141,3 +141,34 @@
     width: 100%;
   }
 }
+
+/* Dark Mode Styles for Quiz */
+body.dark-mode .quiz-container {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+}
+
+body.dark-mode .quiz-header {
+  color: #e0e0e0;
+}
+
+body.dark-mode .quiz-info h2,
+body.dark-mode .user-name {
+  color: #ffffff;
+}
+
+body.dark-mode .quiz-content {
+  color: #e0e0e0;
+}
+
+body.dark-mode .score-display {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .score-value {
+  color: #667eea;
+}
+
+body.dark-mode .loading {
+  color: #ffffff;
+}
